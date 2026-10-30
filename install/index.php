@@ -8,6 +8,7 @@ declare(strict_types=1);
 // =====================================================================
 
 define('ROOT', dirname(__DIR__));
+date_default_timezone_set('Asia/Shanghai');
 const MIN_PHP = '8.1.0';
 
 $envFile = ROOT . '/.env';
