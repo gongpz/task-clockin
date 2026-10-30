@@ -6,6 +6,7 @@
 #   task-deploy <站点名> [git 引用]      例：task-deploy dkamj   /  task-deploy dkamj fix/xxx
 #   task-deploy <站点名> --rollback      回到上一次部署前的代码
 #   task-deploy <站点名> --status        看当前部署版本和最近记录
+#   环境变量：FORCE=1 同版本也重新部署；SKIP_HEALTH=1 跳过健康检查（install.sh 首次部署用）
 #
 # 站点配置在 /etc/task-deploy/<站点名>.conf（install.sh 生成，或照 deploy/sites/site.conf.example 手写）。
 #
@@ -220,7 +221,7 @@ reload_php
 echo "$VERSION" > "$VERSION_FILE"
 
 # ---------- 6. 健康检查 ----------
-if [ -n "$HEALTH_URL" ]; then
+if [ -n "$HEALTH_URL" ] && [ "${SKIP_HEALTH:-0}" != "1" ]; then
   log "健康检查 $HEALTH_URL/admin/login"
   sleep 1
   HDR=(); [ -n "$HEALTH_HOST" ] && HDR=(-H "Host: $HEALTH_HOST")

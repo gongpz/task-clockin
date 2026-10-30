@@ -264,7 +264,8 @@ EOF2
 chmod 600 "/etc/task-deploy/$SITE.conf"
 
 log "首次部署代码"
-HEALTH_URL="" FORCE=1 /usr/local/bin/task-deploy "$SITE" "$DEFAULT_REF"
+# Nginx 站点还没配好，这一次不做健康检查（装完后面单独检查）
+SKIP_HEALTH=1 FORCE=1 /usr/local/bin/task-deploy "$SITE" "$DEFAULT_REF"
 
 # ---------------- 7. 管理员 ----------------
 INIT_OUT=$(env TASK_SITE_ROOT="$SITE_ROOT" TASK_ADMIN_USERNAME="$ADMIN_USERNAME" TASK_ADMIN_PASSWORD="$ADMIN_PASSWORD" \
