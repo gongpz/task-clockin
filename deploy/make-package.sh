@@ -13,6 +13,7 @@ VER="$(tr -d '[:space:]' < VERSION)"
 [[ "$VER" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "VERSION 格式不对：$VER" >&2; exit 1; }
 NAME="task-clockin-$VER"
 mkdir -p "$OUT"
+OUT="$(cd "$OUT" && pwd)"   # 转成绝对路径：后面会 cd 到临时目录再打 zip
 TMP="$(mktemp -d)"; trap 'rm -rf "$TMP"' EXIT
 
 # 安装包内容：程序 + 安装向导 + 建表 SQL + 伪静态 + 说明（部署脚本、文档、计划文件不进包）
