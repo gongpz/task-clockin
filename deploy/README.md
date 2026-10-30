@@ -19,9 +19,10 @@ curl -fsSL https://cdn.jsdelivr.net/gh/gongpz/task-clockin@main/deploy/get.sh | 
 curl -fsSL https://cdn.jsdelivr.net/gh/gongpz/task-clockin@main/deploy/get.sh | bash -s -- upgrade
 ```
 
+菜单逻辑在 `deploy/menu.sh`，`get.sh` 只负责拉仓库再执行它。jsDelivr 会缓存 `get.sh`（最长约 12 小时），所以改功能请改 `menu.sh`，改完马上生效。
+
 可用的命令：`install [--config 文件]`、`upgrade [站点] [分支]`、`rollback [站点]`、`status [站点]`。
-服务器上只有一个站点时，站点名可以省略。jsDelivr 有缓存，刚推送的 get.sh 可能要几分钟后才生效；
-也可以用 GitHub 原始地址 `https://raw.githubusercontent.com/gongpz/task-clockin/main/deploy/get.sh`（部分国内服务器连不上）。
+服务器上只有一个站点时，站点名可以省略。jsDelivr 连不上时，也可以用 GitHub 原始地址 `https://raw.githubusercontent.com/gongpz/task-clockin/main/deploy/get.sh`（部分国内服务器连不上）。
 
 ## 安装做了什么
 
