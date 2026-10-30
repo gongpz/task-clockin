@@ -223,10 +223,14 @@ echo "$VERSION" > "$VERSION_FILE"
 # ---------- 6. 健康检查 ----------
 if [ -n "$HEALTH_URL" ] && [ "${SKIP_HEALTH:-0}" != "1" ]; then
   log "健康检查 $HEALTH_URL/admin/login"
-  sleep 1
   HDR=(); [ -n "$HEALTH_HOST" ] && HDR=(-H "Host: $HEALTH_HOST")
-  CODE=$(curl -sk -o "$STATE_DIR/health.html" -w '%{http_code}' --max-time 20 "${HDR[@]}" "$HEALTH_URL/admin/login" || echo 000)
-  if [ "$CODE" != "200" ] || ! grep -q 'name="password"' "$STATE_DIR/health.html"; then
+  HEALTHY=0
+  for _ in 1 2 3 4 5 6 7 8 9 10; do   # PHP-FPM reload 是异步的，最多等 10 秒
+    sleep 1
+    CODE=$(curl -sk -o "$STATE_DIR/health.html" -w '%{http_code}' --max-time 20 "${HDR[@]}" "$HEALTH_URL/admin/login" || echo 000)
+    [ "$CODE" = "200" ] && grep -q 'name="password"' "$STATE_DIR/health.html" && { HEALTHY=1; break; }
+  done
+  if [ "$HEALTHY" != "1" ]; then
     echo "后台登录页返回 $CODE，或页面里没有登录表单（期望 200 + 登录表单）" >&2
     false   # 触发 ERR → 自动回滚
   fi

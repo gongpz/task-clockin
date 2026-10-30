@@ -306,7 +306,11 @@ if [ "$HTTPS" = "y" ]; then
 fi
 
 # ---------------- 9. 健康检查 ----------------
-CODE=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 -H "Host: $DOMAIN" "http://127.0.0.1/admin/login" || echo 000)
+# Nginx / PHP-FPM 的 reload 是异步的，刚 reload 完可能还是旧配置在应答，最多等 15 秒
+for _ in $(seq 1 15); do
+  CODE=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 -H "Host: $DOMAIN" "http://127.0.0.1/admin/login" || echo 000)
+  [ "$CODE" = "200" ] && break; sleep 1
+done
 [ "$CODE" = "200" ] && ok "后台登录页正常（200）" || echo "⚠ 后台登录页返回 $CODE，请检查 Nginx / PHP-FPM"
 CODE=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 -H "Host: $DOMAIN" "http://127.0.0.1/.env" || echo 000)
 [ "$CODE" = "404" ] || echo "⚠ /.env 返回 $CODE（应为 404），请检查 Nginx 配置"
