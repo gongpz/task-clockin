@@ -1,0 +1,40 @@
+# 发布 Release 时，自动打网页安装包（宝塔 / AMH 上传解压即可安装）并附到这个 Release 上。
+# 也可以在 Actions 页面手动运行，给已有的 Release 补包。
+name: 网页安装包
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: '要补包的 Release 标签（如 v1.0.2）'
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.release.tag_name || inputs.tag }}
+
+      - name: 版本号与标签一致
+        run: |
+          TAG="${{ github.event.release.tag_name || inputs.tag }}"
+          VER="$(tr -d '[:space:]' < VERSION)"
+          [ "v$VER" = "$TAG" ] || { echo "::error::VERSION 是 $VER，标签是 $TAG，不一致"; exit 1; }
+
+      - name: PHP 语法检查
+        run: find app install index.php -name '*.php' -print0 | xargs -0 -n1 php -l > /dev/null
+
+      - name: 打包
+        run: bash deploy/make-package.sh dist
+
+      - name: 上传到 Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "${{ github.event.release.tag_name || inputs.tag }}" dist/*.zip dist/*.sha256 --clobber

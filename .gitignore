@@ -16,3 +16,6 @@ storage/backups/*
 *.bak-*
 *.bak
 
+
+# 安装包产物
+dist/

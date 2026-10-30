@@ -1,8 +1,25 @@
 # 任务打卡系统
 
-当前版本：**1.0.1**（版本号在根目录 `VERSION` 文件里）
+当前版本：**1.0.2**（版本号在根目录 `VERSION` 文件里）
 
 原生 PHP 写的任务打卡系统，线上站点 https://dk.amjhly.com 。
+
+## 安装方式
+
+| 方式 | 适合 | 怎么做 |
+|---|---|---|
+| 网页安装包 | 宝塔、AMH 等主机面板，不想用命令行 | 从 [Releases](https://github.com/gongpz/task-clockin/releases/latest) 下载 `task-clockin-版本号.zip`，上传到网站根目录解压，设伪静态，打开 `/install/` |
+| 一键部署 | 能 SSH 登录服务器，要自动备份、升级、回滚 | 见下面「一键部署」 |
+
+### 网页安装包（宝塔 / AMH）
+
+1. 面板里建网站（PHP 8.1 以上）和数据库（utf8mb4）
+2. 把 zip 上传到网站根目录并解压（根目录能直接看到 `index.php`、`install/`）
+3. 伪静态：复制包里 `伪静态-直接粘贴.txt` 的全部内容，粘到面板的伪静态设置里（Apache 用自带的 `.htaccess`，不用设）
+4. 浏览器打开 `http://你的域名/install/`，填数据库信息和管理员账号，点「开始安装」
+5. 装完安装向导自动锁定，建议再删掉 `install` 目录
+
+详细步骤和常见问题见包里的 `【安装说明】请先看我.txt`。
 
 ## 一键部署
 
@@ -47,7 +64,8 @@ curl -fsSL --retry 3 https://cdn.jsdelivr.net/gh/gongpz/task-clockin@main/deploy
 | `app/services.php` | 业务逻辑与数据访问 |
 | `app/license.php` | 授权校验（`.env` 没配授权信息时按本地模式运行） |
 | `app/views/` | 页面模板 |
-| `deploy/` | 一键部署脚本、建表 SQL（`schema.sql`）、数据库迁移（`migrations/`） |
+| `install/` | 网页安装向导（装好后自动锁定） |
+| `deploy/` | 一键部署脚本、建表 SQL（`schema.sql`）、数据库迁移（`migrations/`）、打包脚本 |
 | `storage/` | 运行时目录：打卡图片、日志（不入库） |
 | `VERSION` | 系统版本号 |
 
@@ -60,9 +78,11 @@ curl -fsSL --retry 3 https://cdn.jsdelivr.net/gh/gongpz/task-clockin@main/deploy
 1. 改完代码，把 `VERSION` 里的版本号加一（如 1.0.1 → 1.0.2）
 2. 改了表结构的话，在 `deploy/migrations/` 加 SQL 文件，并同步改 `deploy/schema.sql`
 3. 合进 `main` 并推送
-4. 在服务器上执行一键部署命令选「升级」
+4. 打标签 `v版本号` 并在 GitHub 发布 Release，Actions 会自动打网页安装包附到 Release 上（标签必须和 `VERSION` 一致）
+5. 已接入一键部署的服务器：执行一键部署命令选「升级」
 
 ## 版本记录
 
+- **1.0.2**（2026-10-30）：新增网页安装向导（`/install/`）和宝塔 / AMH 安装包，发布 Release 时自动打包
 - **1.0.1**（2026-10-30）：接入一键部署（`deploy/`），版本号改由 `VERSION` 文件管理
 - **1.0.0**：线上 dk.amjhly.com 运行的版本，2026-10-30 入库

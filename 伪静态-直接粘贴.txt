@@ -1,0 +1,21 @@
+# 任务打卡系统 · Nginx 伪静态规则（宝塔 / AMH 等面板通用）
+# 宝塔：网站 → 设置 → 伪静态，整段粘贴后保存
+# AMH：虚拟主机 → 编辑 → Rewrite 规则，新建一条规则粘贴同样内容并选用
+
+# 配置文件、程序目录、日志、备份不对外（^~ / = 的优先级高于面板自带的 .php 规则）
+location = /.env              { return 404; }
+location = /.user.ini         { return 404; }
+location ^~ /app/             { return 404; }
+location ^~ /deploy/          { return 404; }
+location ^~ /storage/         { return 404; }
+
+# 打卡上传的图片：只当静态文件，禁止执行脚本
+location ^~ /storage/uploads/ {
+    location ~* \.(php|phtml|phar)$ { return 404; }
+    expires 30d;
+}
+
+# 所有页面交给 index.php（$uri/ 让 /install/ 目录能打开）
+location / {
+    try_files $uri $uri/ /index.php?$query_string;
+}

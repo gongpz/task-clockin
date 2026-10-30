@@ -1,0 +1,13 @@
+# 任务打卡系统 · Apache 规则（用 Apache 的面板自动生效；Nginx 请用「伪静态-直接粘贴.txt」）
+<FilesMatch "^\.(env|user\.ini)$">
+    Require all denied
+</FilesMatch>
+
+RewriteEngine On
+RewriteRule ^(app|deploy)(/|$) - [R=404,L]
+RewriteRule ^storage/uploads/.*\.(php|phtml|phar)$ - [R=404,L]
+RewriteCond %{REQUEST_URI} !^/storage/uploads/
+RewriteRule ^storage(/|$) - [R=404,L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.php [L]

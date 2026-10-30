@@ -1,6 +1,12 @@
 <?php
 declare(strict_types=1);
 
+// 还没安装（没有 .env）时转到网页安装向导
+if (!is_file(__DIR__ . '/.env') && is_file(__DIR__ . '/install/index.php')) {
+    header('Location: /install/');
+    exit;
+}
+
 require __DIR__ . '/app/bootstrap.php';
 require __DIR__ . '/app/services.php';
 
