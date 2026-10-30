@@ -7,7 +7,7 @@
 在服务器上用 root 执行，出菜单后按提示选：
 
 ```bash
-curl -fsSL https://cdn.jsdelivr.net/gh/gongpz/task-clockin@main/deploy/get.sh | bash
+curl -fsSL --retry 3 https://cdn.jsdelivr.net/gh/gongpz/task-clockin@main/deploy/get.sh | bash
 ```
 
 - 没装过：菜单只有「安装」
@@ -16,12 +16,13 @@ curl -fsSL https://cdn.jsdelivr.net/gh/gongpz/task-clockin@main/deploy/get.sh | 
 不出菜单、直接执行：
 
 ```bash
-curl -fsSL https://cdn.jsdelivr.net/gh/gongpz/task-clockin@main/deploy/get.sh | bash -s -- upgrade
+curl -fsSL --retry 3 https://cdn.jsdelivr.net/gh/gongpz/task-clockin@main/deploy/get.sh | bash -s -- upgrade
 ```
 
 菜单逻辑在 `deploy/menu.sh`，`get.sh` 只负责拉仓库再执行它。jsDelivr 会缓存 `get.sh`（最长约 12 小时），所以改功能请改 `menu.sh`，改完马上生效。
 
 可用的命令：`install [--config 文件]`、`upgrade [站点] [分支]`、`rollback [站点]`、`status [站点]`。
+`--retry 3`：国内服务器连 jsDelivr 偶尔会被重置连接，自动重试。
 服务器上只有一个站点时，站点名可以省略。jsDelivr 连不上时，也可以用 GitHub 原始地址 `https://raw.githubusercontent.com/gongpz/task-clockin/main/deploy/get.sh`（部分国内服务器连不上）。
 
 ## 安装做了什么
@@ -49,6 +50,12 @@ task-deploy dkamj fix/xxx      # 部署指定分支或提交
 task-deploy dkamj --rollback   # 回到上一次部署前的代码
 task-deploy dkamj --status     # 当前版本和最近记录
 ```
+
+## 已接入的站点
+
+| 站点 | 服务器 | 接入时间 |
+|---|---|---|
+| dk.amjhly.com（站点名 dkamj） | 正式服务器（宝塔） | 2026-10-30 |
 
 ## 已在运行的站点接入（如 dk.amjhly.com）
 

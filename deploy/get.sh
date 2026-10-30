@@ -3,7 +3,7 @@
 # 任务打卡系统 · 一键部署（安装 / 升级 / 回滚 / 状态 / 修复）
 #
 # 在服务器上用 root 执行：
-#   curl -fsSL https://cdn.jsdelivr.net/gh/gongpz/task-clockin@main/deploy/get.sh | bash
+#   curl -fsSL --retry 3 https://cdn.jsdelivr.net/gh/gongpz/task-clockin@main/deploy/get.sh | bash
 # 不出菜单、直接执行：
 #   curl -fsSL .../get.sh | bash -s -- install [--config 文件]   安装（已安装时等于修复，数据不丢）
 #   curl -fsSL .../get.sh | bash -s -- upgrade [站点] [分支]     升级（FORCE=1 同版本也重新部署）
