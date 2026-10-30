@@ -68,8 +68,7 @@ do_install() {
 # 用仓库里最新的部署脚本替换服务器上的 task-deploy（老版本可能已拉不动代码，比如仓库地址换过）
 refresh_deployer() {
   fetch_installer
-  tr -d '
-' < "$INSTALLER/deploy/deploy.sh" > /usr/local/bin/task-deploy.new
+  tr -d '\r' < "$INSTALLER/deploy/deploy.sh" > /usr/local/bin/task-deploy.new
   chmod 755 /usr/local/bin/task-deploy.new && mv /usr/local/bin/task-deploy.new /usr/local/bin/task-deploy
 }
 
