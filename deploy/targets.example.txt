@@ -1,6 +1,0 @@
-# 本机「一键部署.bat」用的服务器清单（复制为 deploy	argets.txt，此文件不入库）
-# 每行：名称|SSH地址|端口|用户|站点名|SSH私钥路径
-# 名称里不带 DEMO / 测试 的视为正式环境，部署前要输入 yes 确认
-# 私钥留空表示用默认 ~/.ssh/id_rsa、id_ed25519
-正式站|服务器IP|22|root|dkamj|~/.ssh/id_ed25519
-测试机|测试机IP|22|root|dkamj|

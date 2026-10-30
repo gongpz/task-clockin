@@ -4,9 +4,9 @@
 # 站点根目录（里面有 index.php、app/、.env、storage/）
 SITE_DIR="/www/wwwroot/dkamj"
 
-# GitHub 仓库（私有仓库用 SSH 地址 + 只读 Deploy Key）
-REPO_URL="git@github.com:gongpz/task-clockin.git"
-REPO_SSH_KEY="/etc/task-deploy/keys/github_repo"
+# GitHub 仓库（公开仓库用 https 地址，REPO_SSH_KEY 留空；私有仓库才用 SSH 地址 + 只读 Deploy Key）
+REPO_URL="https://github.com/gongpz/task-clockin.git"
+REPO_SSH_KEY=""
 
 # 不指定版本时部署的分支
 DEFAULT_REF="main"

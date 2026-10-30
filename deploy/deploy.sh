@@ -121,6 +121,7 @@ log "拉取 $REPO_URL ($REF)"
 if [ ! -d "$CACHE_DIR/.git" ]; then
   git clone --quiet "$REPO_URL" "$CACHE_DIR"
 fi
+git -C "$CACHE_DIR" remote set-url origin "$REPO_URL"   # 配置里换了仓库地址（如私有改公开）时跟着换
 git -C "$CACHE_DIR" fetch --quiet --prune origin '+refs/heads/*:refs/remotes/origin/*' '+refs/tags/*:refs/tags/*'
 if git -C "$CACHE_DIR" rev-parse --verify --quiet "origin/$REF" >/dev/null; then
   TARGET="origin/$REF"

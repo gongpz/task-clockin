@@ -2,7 +2,7 @@
 # =====================================================================
 # 已经在运行的站点（比如 dk.amjhly.com）接入一键部署：
 #   - 安装 /usr/local/bin/task-deploy
-#   - 生成读取 GitHub 仓库用的只读 Deploy Key
+#   - 仓库是私有的（REPO_URL=git@...）时，生成只读 Deploy Key
 #   - 生成 /etc/task-deploy/<站点名>.conf（已存在就不动）
 #
 # 用法（root，在服务器上）：
@@ -17,7 +17,7 @@ HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SITE="${1:-}"; SITE_DIR="${2:-}"; HEALTH="${3:-}"
 [[ "$SITE" =~ ^[A-Za-z0-9_-]+$ ]] || die "用法：bash setup-server.sh <站点名> <站点目录> <健康检查地址>"
 [ -f "$SITE_DIR/index.php" ] && [ -f "$SITE_DIR/.env" ] || die "$SITE_DIR 下没有 index.php / .env，不像已运行的任务打卡站点"
-REPO_URL="${REPO_URL:-git@github.com:gongpz/task-clockin.git}"
+REPO_URL="${REPO_URL:-https://github.com/gongpz/task-clockin.git}"
 
 for c in git rsync flock curl; do command -v $c >/dev/null || die "缺少 $c，请先安装"; done
 tr -d '\r' < "$HERE/deploy.sh" > /usr/local/bin/task-deploy && chmod 755 /usr/local/bin/task-deploy
@@ -25,7 +25,10 @@ mkdir -p /etc/task-deploy/keys && chmod 700 /etc/task-deploy /etc/task-deploy/ke
 echo "✔ 已安装 task-deploy"
 
 KEY=/etc/task-deploy/keys/github_repo
-[ -f "$KEY" ] || { ssh-keygen -q -t ed25519 -N '' -C "task-deploy@$(hostname)" -f "$KEY"; echo "✔ 已生成仓库只读钥匙"; }
+# 私有仓库才需要只读钥匙（REPO_URL 用 git@ 地址时）
+if [[ "$REPO_URL" == git@* ]] && [ ! -f "$KEY" ]; then
+  ssh-keygen -q -t ed25519 -N '' -C "task-deploy@$(hostname)" -f "$KEY"; echo "✔ 已生成仓库只读钥匙"
+fi
 
 CONF="/etc/task-deploy/$SITE.conf"
 if [ -f "$CONF" ]; then
@@ -40,7 +43,7 @@ else
 # 由 setup-server.sh 生成 $(date '+%F %T')；字段说明见 deploy/sites/site.conf.example
 SITE_DIR="$SITE_DIR"
 REPO_URL="$REPO_URL"
-REPO_SSH_KEY="$KEY"
+REPO_SSH_KEY=""
 DEFAULT_REF="main"
 PHP_BIN="$PHP_BIN"
 WEB_USER="$WEB_USER"
@@ -54,10 +57,16 @@ CONF
   echo "✔ 已生成 $CONF（PHP、运行用户如不对请手改）"
 fi
 
-if GIT_SSH_COMMAND="ssh -i $KEY -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new" git ls-remote "$REPO_URL" HEAD >/dev/null 2>&1; then
+if [[ "$REPO_URL" == git@* ]]; then
+  export GIT_SSH_COMMAND="ssh -i $KEY -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new"
+  sed -i "s#^REPO_SSH_KEY=.*#REPO_SSH_KEY=\"$KEY\"#" "$CONF"
+fi
+if git ls-remote "$REPO_URL" HEAD >/dev/null 2>&1; then
   echo "✔ 可以读取仓库。以后升级：task-deploy $SITE"
-else
+elif [[ "$REPO_URL" == git@* ]]; then
   echo
   echo "把下面这行加到 GitHub 仓库 → Settings → Deploy keys（不要勾 Allow write access），然后执行 task-deploy $SITE："
   cat "$KEY.pub"
+else
+  echo "⚠ 现在读不到 $REPO_URL，请检查服务器能否访问 github.com"
 fi

@@ -16,5 +16,3 @@ storage/backups/*
 *.bak-*
 *.bak
 
-# 本机部署清单（含服务器地址和私钥路径）
-deploy/targets.txt
