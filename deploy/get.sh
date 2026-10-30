@@ -77,8 +77,16 @@ do_install() {
   fi
 }
 
+# 用仓库里最新的部署脚本替换服务器上的 task-deploy（老版本可能已拉不动代码，比如仓库地址换过）
+refresh_deployer() {
+  fetch_installer
+  tr -d '' < "$INSTALLER/deploy/deploy.sh" > /usr/local/bin/task-deploy.new
+  chmod 755 /usr/local/bin/task-deploy.new && mv /usr/local/bin/task-deploy.new /usr/local/bin/task-deploy
+}
+
 do_upgrade() {
   pick_site "${1:-}"
+  refresh_deployer
   local ref="${2:-}"
   [ -z "$ref" ] || [[ "$ref" =~ ^[A-Za-z0-9._/-]{1,100}$ ]] || die "分支名不合法"
   task-deploy "$SITE" ${ref:+"$ref"}
@@ -112,7 +120,7 @@ case "$CMD" in
   upgrade)  [ "$INSTALLED" = "1" ] || die "还没有安装，请先执行 install"; do_upgrade "$@" ;;
   status)   [ "$INSTALLED" = "1" ] || die "还没有安装"; pick_site "${1:-}"; task-deploy "$SITE" --status ;;
   rollback)
-    [ "$INSTALLED" = "1" ] || die "还没有安装"; pick_site "${1:-}"
+    [ "$INSTALLED" = "1" ] || die "还没有安装"; pick_site "${1:-}"; refresh_deployer
     if [ -n "$TTY" ] && [ "${YES:-0}" != "1" ]; then ask "确认把 $SITE 回滚到上一次部署前的代码？输入 yes 继续: "; [ "$REPLY" = "yes" ] || die "已取消"; fi
     task-deploy "$SITE" --rollback ;;
   *) die "不认识的命令 $CMD（可用：install / upgrade / rollback / status）" ;;
