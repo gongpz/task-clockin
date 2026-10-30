@@ -1,6 +1,14 @@
 <?php
 declare(strict_types=1);
 
+// 系统版本：以仓库根目录的 VERSION 文件为准（随部署更新），没有时才用 .env 的 APP_VERSION
+function app_version(): string
+{
+    $file = APP_ROOT . '/VERSION';
+    $version = is_file($file) ? trim((string) file_get_contents($file)) : '';
+    return $version !== '' ? $version : env('APP_VERSION', '1.0.0');
+}
+
 function license_configured(): bool
 {
     return trim(env('LICENSE_KEY', '')) !== ''
@@ -115,7 +123,7 @@ function license_verify_online(): array
         'server_ip' => license_server_ip(),
         'server_fingerprint' => license_fingerprint(),
         'install_id' => license_install_id(),
-        'system_version' => env('APP_VERSION', '1.0.0'),
+        'system_version' => app_version(),
         'client_time' => date('Y-m-d H:i:s'),
     ];
 

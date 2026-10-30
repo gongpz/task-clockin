@@ -15,7 +15,7 @@
 #   2. 拉取 GitHub 仓库到缓存目录，检出指定版本
 #   3. PHP 语法检查（全部在缓存目录里，失败不影响线上）
 #   4. 备份：数据库导出 + 将要被覆盖的代码（保留最近 KEEP_BACKUPS 份）
-#   5. 同步代码：只覆盖 app/、index.php 等程序文件；
+#   5. 同步代码：只覆盖 app/、index.php、VERSION 等程序文件；
 #      不动 .env、.user.ini、storage（上传图片、日志）、服务器上的 .bak 文件
 #   6. 执行 deploy/migrations/ 里还没执行过的 SQL → 重载 PHP-FPM 清 OPcache
 #   7. 健康检查（后台登录页 200），失败自动回滚代码
@@ -60,7 +60,7 @@ chmod 700 "$STATE_DIR"
 
 # ---------- 只同步这些程序文件（来自仓库），其余一律不动 ----------
 SYNC_DIRS=(app)                      # 整目录镜像（仓库里删掉的文件，线上也删）
-SYNC_FILES=(index.php .env.example)  # 单个文件覆盖
+SYNC_FILES=(index.php VERSION .env.example)  # 单个文件覆盖
 # 镜像目录时排除：服务器上的各种手工备份（排除的文件不会被删）
 RSYNC_EXCLUDES=(--exclude '*.bak' --exclude '*.bak-*' --exclude '*.bak_*' --exclude '*.bak.*')
 
@@ -132,7 +132,8 @@ git -C "$CACHE_DIR" -c advice.detachedHead=false checkout --quiet --force "$TARG
 git -C "$CACHE_DIR" clean -fdq
 SHA=$(git -C "$CACHE_DIR" rev-parse --short HEAD)
 SUBJECT=$(git -C "$CACHE_DIR" log -1 --format=%s)
-VERSION="$REF@$SHA"
+APP_VER=$(tr -d '[:space:]' < "$CACHE_DIR/VERSION" 2>/dev/null || true)
+VERSION="${APP_VER:+v$APP_VER }$REF@$SHA"
 log "目标版本 $VERSION  $SUBJECT"
 if [ "$(current_ver)" = "$VERSION" ] && [ "${FORCE:-0}" != "1" ]; then
   log "已经是 $VERSION，无需部署（要强制重新部署：FORCE=1 task-deploy $SITE $REF）"
