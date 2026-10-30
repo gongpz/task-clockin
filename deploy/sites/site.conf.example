@@ -1,0 +1,24 @@
+# 站点部署配置示例：复制到服务器 /etc/task-deploy/<站点名>.conf，权限 600
+# install.sh / setup-server.sh 会自动生成这个文件；手写时照这个填。
+
+# 站点根目录（里面有 index.php、app/、.env、storage/）
+SITE_DIR="/www/wwwroot/dkamj"
+
+# GitHub 仓库（私有仓库用 SSH 地址 + 只读 Deploy Key）
+REPO_URL="git@github.com:gongpz/task-clockin.git"
+REPO_SSH_KEY="/etc/task-deploy/keys/github_repo"
+
+# 不指定版本时部署的分支
+DEFAULT_REF="main"
+
+# 工具路径（宝塔服务器示例）
+PHP_BIN="/www/server/php/82/bin/php"
+WEB_USER="www"                                   # PHP-FPM 运行用户
+PHP_FPM_RELOAD="/etc/init.d/php-fpm-82 reload"   # 部署后重载，清 OPcache
+
+# 部署后健康检查：$HEALTH_URL/admin/login 应返回 200 并带登录表单，否则自动回滚
+HEALTH_URL="https://dk.amjhly.com"
+HEALTH_HOST=""                                   # HEALTH_URL 用 127.0.0.1 时，这里填站点域名
+
+KEEP_BACKUPS=5                                   # 保留最近几次部署备份
+DB_BACKUP=1                                      # 部署前导出数据库（1 = 是）
