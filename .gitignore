@@ -1,0 +1,17 @@
+# 凭据（数据库密码、授权码）
+.env
+!.env.example
+
+# 正式库数据导出（含真实人员数据）
+*.sql.gz
+cqku_dump.sql
+
+# 运行时目录
+storage/uploads/*
+storage/logs/*
+storage/backups/*
+!storage/*/.gitkeep
+
+# 线上手工备份文件
+*.bak-*
+*.bak
